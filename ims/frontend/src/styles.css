@@ -1,11 +1,27 @@
 :root {
   --bg: #f5f6f8;
   --card: #ffffff;
+  --card-alt: #fafbfc;
   --border: #e1e4e8;
   --text: #1f2328;
   --muted: #656d76;
   --primary: #2563eb;
   --danger: #dc2626;
+  --shadow: rgba(0, 0, 0, 0.2);
+}
+
+/* Dark theme: same variable names, dark values. Activated by
+   data-theme="dark" on <html> (set from JS, persisted in localStorage). */
+:root[data-theme="dark"] {
+  --bg: #0d1117;
+  --card: #161b22;
+  --card-alt: #1c2230;
+  --border: #30363d;
+  --text: #e6edf3;
+  --muted: #9198a1;
+  --primary: #4f8cf7;
+  --danger: #f85149;
+  --shadow: rgba(0, 0, 0, 0.6);
 }
 
 * { box-sizing: border-box; }
@@ -15,6 +31,7 @@ body {
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   background: var(--bg);
   color: var(--text);
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .container {
@@ -31,6 +48,28 @@ header {
 }
 
 h1 { font-size: 1.5rem; margin: 0; }
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.theme-toggle {
+  width: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  line-height: 1;
+}
+.theme-toggle:hover { background: var(--card-alt); }
 
 .search {
   width: 100%;
@@ -61,11 +100,11 @@ th {
   text-transform: uppercase;
   letter-spacing: 0.03em;
   color: var(--muted);
-  background: #fafbfc;
+  background: var(--card-alt);
 }
 
 tbody tr:last-child td { border-bottom: none; }
-tbody tr:hover { background: #fafbfc; }
+tbody tr:hover { background: var(--card-alt); }
 
 .mono { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.85rem; }
 
@@ -78,7 +117,8 @@ tbody tr:hover { background: #fafbfc; }
   width: 26px;
   height: 26px;
   border: 1px solid var(--border);
-  background: #fff;
+  background: var(--card);
+  color: var(--text);
   border-radius: 6px;
   cursor: pointer;
   font-size: 1rem;
@@ -104,7 +144,8 @@ button { font-family: inherit; }
 .btn-primary:disabled { opacity: 0.6; cursor: default; }
 
 .btn-secondary {
-  background: #fff;
+  background: var(--card);
+  color: var(--text);
   border: 1px solid var(--border);
   padding: 0.55rem 1rem;
   border-radius: 8px;
@@ -126,8 +167,8 @@ button { font-family: inherit; }
 
 .error { color: var(--danger); font-size: 0.9rem; }
 .error.banner {
-  background: #fef2f2;
-  border: 1px solid #fecaca;
+  background: color-mix(in srgb, var(--danger) 12%, var(--card));
+  border: 1px solid color-mix(in srgb, var(--danger) 40%, var(--card));
   padding: 0.6rem 0.9rem;
   border-radius: 8px;
   margin-bottom: 1rem;
@@ -149,7 +190,7 @@ button { font-family: inherit; }
   padding: 1.5rem;
   width: 100%;
   max-width: 440px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 10px 40px var(--shadow);
 }
 .modal h2 { margin-top: 0; }
 .modal label {

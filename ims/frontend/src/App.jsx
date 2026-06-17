@@ -1,8 +1,10 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { listItems, createItem, updateItem, deleteItem } from './api.js';
 import ItemForm from './ItemForm.jsx';
+import { useTheme } from './useTheme.js';
 
 export default function App() {
+  const { theme, toggleTheme } = useTheme();
   const [items, setItems] = useState([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
@@ -65,9 +67,19 @@ export default function App() {
     <div className="container">
       <header>
         <h1>Inventory Management</h1>
-        <button className="btn-primary" onClick={() => setEditing(null)}>
-          + Add Item
-        </button>
+        <div className="header-actions">
+          <button
+            className="theme-toggle"
+            onClick={toggleTheme}
+            title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            aria-label="Toggle dark mode"
+          >
+            {theme === 'dark' ? '☀️' : '🌙'}
+          </button>
+          <button className="btn-primary" onClick={() => setEditing(null)}>
+            + Add Item
+          </button>
+        </div>
       </header>
 
       <input
