@@ -1,0 +1,50 @@
+# Local development stack: brings up Postgres + backend + frontend with one
+# command. Mirrors the production topology (external DB, stateless services
+# talking over HTTP) but runs Postgres in a container for convenience only.
+#
+#   docker compose up --build   ->   http://localhost:8080
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ims
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    # No PVC/named volume on purpose: keep local data ephemeral. Add a volume
+    # here if you want persistence between runs.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ims"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    ports:
+      - "5432:5432"
+
+  backend:
+    build: ./backend
+    environment:
+      PORT: "3000"
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_NAME: ims
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_SSL: "false"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      # Exposed for direct API testing (curl). The frontend reaches it via
+      # the proxy, not this port.
+      - "3035:3000"
+
+  frontend:
+    build: ./frontend
+    # Mount the dev-only nginx config that proxies /api -> backend, so the
+    # single :8080 origin works without a Kubernetes ingress.
+    volumes:
+      - ./frontend/nginx.compose.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"

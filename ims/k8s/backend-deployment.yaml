@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ims-backend
+  labels:
+    app: ims
+    tier: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ims
+      tier: backend
+  template:
+    metadata:
+      labels:
+        app: ims
+        tier: backend
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+      containers:
+        - name: backend
+          image: amannan15/ims-backend:latest
+          ports:
+            - containerPort: 3000
+          # Pull all non-secret config from the ConfigMap and the password from
+          # the Secret. 12-factor: config is entirely external to the image.
+          envFrom:
+            - configMapRef:
+                name: ims-config
+            - secretRef:
+                name: ims-secret
+          # Liveness: hits /healthz, which never touches the DB.
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          # Readiness: hits /readyz, which runs SELECT 1. Pod is kept out of the
+          # Service endpoints until the DB is reachable.
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "250m"
+              memory: "256Mi"
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+      # Give in-flight requests time to drain on SIGTERM during rolling updates.
+      terminationGracePeriodSeconds: 30

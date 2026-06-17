@@ -1,0 +1,40 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ims-ingress
+  labels:
+    app: ims
+  annotations:
+    # Using the community NGINX ingress controller.
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    # --- TLS / cert-manager (uncomment when enabling HTTPS) -----------------
+    # cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    # nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  # --- TLS block (uncomment alongside cert-manager annotation above) --------
+  # tls:
+  #   - hosts:
+  #       - ims.example.com
+  #     secretName: ims-tls
+  rules:
+    - host: ims.example.com
+      http:
+        paths:
+          # /api -> backend service. Listed first; the more specific prefix
+          # wins so API calls never hit the frontend.
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: ims-backend
+                port:
+                  number: 80
+          # everything else -> frontend SPA
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ims-frontend
+                port:
+                  number: 80

@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ims-frontend
+  labels:
+    app: ims
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ims
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        app: ims
+        tier: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: amannan15/ims-frontend:latest
+          ports:
+            - containerPort: 80
+          # nginx serves a static SPA; / is a cheap, DB-free health signal.
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 3
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: "25m"
+              memory: "32Mi"
+            limits:
+              cpu: "100m"
+              memory: "128Mi"
+      terminationGracePeriodSeconds: 30
