@@ -2,7 +2,7 @@ name: Build and Deploy IMS
 
 on:
   push:
-    branches: [main]
+    branches: [master]
 
 env:
   AWS_REGION: us-east-1
