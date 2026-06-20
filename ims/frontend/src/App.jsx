@@ -66,7 +66,7 @@ export default function App() {
   return (
     <div className="container">
       <header>
-        <h1>Inventory Management</h1>
+        <h1>Inventory Management System</h1>
         <div className="header-actions">
           <button
             className="theme-toggle"
